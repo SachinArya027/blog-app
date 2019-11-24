@@ -1,5 +1,6 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import {
+	ScrollView,
 	View,
 	Text,
 	StyleSheet,
@@ -10,10 +11,24 @@ import { Context as BlogContext } from '../context/BlogContext';
 import { Feather } from '@expo/vector-icons';
 
 const IndexScreen = ({ navigation }) => {
-	const { state, deleteBlogPost } = useContext(BlogContext);
+	const { state, getBlogPosts, deleteBlogPost } = useContext(BlogContext);
+
+	useEffect(() => {
+		getBlogPosts();
+
+		const listener = navigation.addListener('didFocus', () => {
+			getBlogPosts();
+		});
+
+		// the return function is optional
+		// will only got invoked on unmounting of IndexScreen componnent
+		return () => {
+			listener.remove();
+		};
+	}, []);
 
 	return (
-		<View style={styles.container}>
+		<ScrollView style={styles.container}>
 			<FlatList
 				keyExtractor={blog => blog.title}
 				data={state}
@@ -32,7 +47,7 @@ const IndexScreen = ({ navigation }) => {
 					);
 				}}
 			/>
-		</View>
+		</ScrollView>
 	);
 };
 
